@@ -45,7 +45,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd mobile/NextChatMobile
-        npm ci
+        npm install
 
     - name: Build Android App Bundles for Different Architectures
       run: |
@@ -86,7 +86,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd mobile/NextChatMobile
-        npm ci
+        npm install
 
     - name: Cache CocoaPods
       uses: actions/cache@v4
