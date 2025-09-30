@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { nanoid } from 'nanoid';
+// 使用 React Native 兼容版本的 nanoid
+import { nanoid } from 'nanoid/non-secure';
 import { MessageStorage } from '../utils/performance';
 
 export interface ChatMessage {
