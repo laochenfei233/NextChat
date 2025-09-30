@@ -49,6 +49,11 @@ jobs:
         cd mobile/NextChatMobile
         npm install
 
+    - name: Make gradlew executable
+      run: |
+        cd mobile/NextChatMobile/android
+        chmod +x gradlew
+
     - name: Build Android App Bundles for Different Architectures
       run: |
         cd mobile/NextChatMobile/android
