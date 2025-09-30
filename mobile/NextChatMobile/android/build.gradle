@@ -3,6 +3,7 @@ buildscript {
         minSdkVersion = 24
         compileSdkVersion = 36
         targetSdkVersion = 36
+        buildToolsVersion = "36.0.1"
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
     }
