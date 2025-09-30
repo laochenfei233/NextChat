@@ -1,0 +1,124 @@
+name: Mobile Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: mobile/NextChatMobile/package-lock.json
+
+    - name: Setup JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('mobile/NextChatMobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Install React Native CLI
+      run: npm install -g react-native-cli
+
+    - name: Install dependencies
+      run: |
+        cd mobile/NextChatMobile
+        npm ci
+
+    - name: Build Android App Bundles for Different Architectures
+      run: |
+        cd mobile/NextChatMobile/android
+        # Build for each architecture separately
+        ./gradlew assembleRelease -PreactNativeArchitectures=armeabi-v7a
+        ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+        ./gradlew assembleRelease -PreactNativeArchitectures=x86
+        ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+
+    - name: Build Universal Android APK
+      run: |
+        cd mobile/NextChatMobile/android
+        # Build universal APK with all architectures
+        ./gradlew assembleRelease
+
+    - name: Upload Android Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apks
+        path: |
+          mobile/NextChatMobile/android/app/build/outputs/apk/release/
+          !mobile/NextChatMobile/android/app/build/outputs/apk/release/output-metadata.json
+
+  ios-build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: mobile/NextChatMobile/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd mobile/NextChatMobile
+        npm ci
+
+    - name: Cache CocoaPods
+      uses: actions/cache@v4
+      with:
+        path: mobile/NextChatMobile/ios/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('mobile/NextChatMobile/ios/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+
+    - name: Install CocoaPods
+      run: |
+        cd mobile/NextChatMobile/ios
+        pod install
+
+    - name: Build iOS for iPhone
+      run: |
+        cd mobile/NextChatMobile
+        # Building iOS app for iPhone devices
+        npx react-native build-ios --mode Release --device
+
+    - name: Build iOS for iPad (Universal)
+      run: |
+        cd mobile/NextChatMobile
+        # Building iOS app for iPad devices (universal build)
+        npx react-native build-ios --mode Release --device --scheme "NextChatMobile" --destination "generic/platform=iOS" 
+
+    - name: Upload iOS Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-apps
+        path: |
+          mobile/NextChatMobile/ios/build/Build/Products/Release-iphoneos/*.app
+          mobile/NextChatMobile/ios/build/Build/Products/Release-iphonesimulator/*.app
