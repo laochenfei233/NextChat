@@ -105,6 +105,19 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.16.0'
+            force 'androidx.versionedparcelable:versionedparcelable:1.1.1'
+        }
+    }
+    
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libfbjni.so'
+        pickFirst '**/libreactnativejni.so'
+    }
 }
 
 dependencies {
@@ -116,4 +129,14 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
+    // 解决类冲突问题
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+}
+
+// 解决类冲突问题
+configurations.all {
+    exclude group: 'com.android.support', module: 'support-compat'
+    exclude group: 'com.android.support', module: 'support-annotations'
+    exclude group: 'com.android.support', module: 'versionedparcelable'
 }
