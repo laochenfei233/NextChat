@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 // @ts-ignore
-import DocumentPicker from 'react-native-document-picker';
+import * as DocumentPicker from 'expo-document-picker';
 // @ts-ignore
 import RNFS from 'react-native-fs';
 
@@ -19,23 +19,25 @@ export class FileUtils {
   // Pick a document
   async pickDocument(): Promise<{ uri: string; name: string; size: number; type: string } | null> {
     try {
-      const result = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.allFiles],
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
       });
       
+      if (result.canceled) {
+        return null;
+      }
+      
+      const document = result.assets[0];
+      
       return {
-        uri: result.uri,
-        name: result.name,
-        size: result.size,
-        type: result.type,
+        uri: document.uri,
+        name: document.name || 'Unknown',
+        size: document.size || 0,
+        type: document.mimeType || 'application/octet-stream',
       };
     } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        // User cancelled the picker
-        return null;
-      } else {
-        throw err;
-      }
+      console.error('Document picker error:', err);
+      return null;
     }
   }
 

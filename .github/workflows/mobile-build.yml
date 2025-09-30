@@ -114,13 +114,13 @@ jobs:
       run: |
         cd mobile/NextChatMobile
         # Building iOS app for iPhone devices without code signing
-        npx react-native build-ios --mode Release --scheme "NextChatMobile" --destination "generic/platform=iOS" --extra-params="-allowProvisioningUpdates -allowProvisioningDeviceRegistration CODE_SIGNING_ALLOWED=NO"
+        npx react-native build-ios --mode Release --scheme "NextChatMobile" --destination 'generic/platform=iOS' --extra-params="-allowProvisioningUpdates -allowProvisioningDeviceRegistration CODE_SIGNING_ALLOWED=NO"
 
     - name: Build iOS for iPad (without code signing)
       run: |
         cd mobile/NextChatMobile
         # Building iOS app for iPad simulator without code signing
-        npx react-native build-ios --mode Release --scheme "NextChatMobile" --destination "generic/platform=iOS Simulator" --extra-params="-allowProvisioningUpdates -allowProvisioningDeviceRegistration CODE_SIGNING_ALLOWED=NO"
+        npx react-native build-ios --mode Release --scheme "NextChatMobile" --destination 'generic/platform=iOS Simulator' --extra-params="-allowProvisioningUpdates -allowProvisioningDeviceRegistration CODE_SIGNING_ALLOWED=NO"
 
     - name: Upload iOS Artifacts
       uses: actions/upload-artifact@v4
